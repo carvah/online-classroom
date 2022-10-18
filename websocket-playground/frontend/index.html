@@ -12,11 +12,26 @@
             height: 100%;
             width: 100%;
             overflow: hidden;
+            font-family: fantasy;
+            margin: 0 !important;
+            padding: 0 !important;
         }
-        
+
         #gameControl {
-            display: none;
-            border: 1px sold black;
+            display: none;            
+        }
+
+        #canvas {
+            border: solid 5px blue;
+            margin: 5px; 
+            width: 98%;
+            height: 95%;
+            display: block;
+        }
+
+        #fps_stat {
+            float: right;
+            margin-right: 50px;
         }
     </style>
 </head>
@@ -31,8 +46,9 @@
     </div>
 
     <div id="gameControl">
+        <span id="fps_stat">0 ms</span>
         <canvas id="canvas"></canvas>
-    </div>
+    </div>        
 </body>
 
 <script src="/socket.io/socket.io.js"></script>
