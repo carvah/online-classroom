@@ -37,6 +37,8 @@ io.on('connection', function(socket) {
     //Whenever someone disconnects this piece of code executed
     socket.on('disconnect', function() {
         console.log('A user disconnected');
+        delete playersSocketMap[socket.id];
+        players = players.filter((player) => player.id !== socket.id);
     });
 
     socket.on('join', (player) => {
