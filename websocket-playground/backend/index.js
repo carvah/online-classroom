@@ -106,7 +106,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on('ping', ping => {
-        socket.emit('pong', Date.now());
+        socket.emit('pong', ping);
     })
 });
 

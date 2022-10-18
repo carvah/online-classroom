@@ -70,25 +70,20 @@ socket.on('players', (serverPlayers) => {
 
 socket.on('sendMap', serverMap => {
     map = serverMap;
-    console.log(map);
 });
 
-let lastPing = Date.now();
 setInterval(() => {
-    
-    socket.emit('ping', lastPing);
-    lastPing = Date.now();
+    socket.emit('ping', Date.now());    
 }, 1000);
 
-latency = 0;
+let latency = 0;
 socket.on('pong', (pong) => {
-    
-    latency = Math.floor(lastPing / 1000) - Math.floor(pong / 1000);
+    latency = Math.floor(Date.now() / 1000) - Math.floor(pong / 1000);
     console.log(latency);
 });
 
 function update(delta) {
-    socket.emit("controls", controls);    
+    socket.emit("controls", controls);
 }
 
 function draw() {
@@ -98,7 +93,7 @@ function draw() {
 
     players.forEach(player => {
         // is mine
-        if (player.id === socket.id) {            
+        if (player.id === socket.id) {
             ctx.fillStyle = player.color;
             ctx.fillRect(player.x, player.y, PLAYER_SIZE, PLAYER_SIZE);
         }
@@ -113,17 +108,17 @@ function draw() {
 const drawMap = () => {
     ctx.fillStyle = "#000000";
     for (let row = 0; row < map.length; row++) {
-      for (let col = 0; col < map[row].length; col++) {
-        const tileType = map[row][col];
-        if (tileType === 1) {
-          ctx.fillRect(
-            col * TILE_SIZE,
-            row * TILE_SIZE,
-            TILE_SIZE,
-            TILE_SIZE
-          );
+        for (let col = 0; col < map[row].length; col++) {
+            const tileType = map[row][col];
+            if (tileType === 1) {
+                ctx.fillRect(
+                    col * TILE_SIZE,
+                    row * TILE_SIZE,
+                    TILE_SIZE,
+                    TILE_SIZE
+                );
+            }
         }
-      }
     }
 };
 
