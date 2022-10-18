@@ -77,8 +77,8 @@ setInterval(() => {
 }, 1000);
 
 let latency = 0;
-socket.on('pong', (pong) => {
-    latency = Math.floor(Date.now() / 1000) - Math.floor(pong / 1000);
+socket.on('pong', (pong) => {    
+    latency = Date.now() - pong;
     console.log(latency);
 });
 
