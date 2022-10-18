@@ -21,6 +21,10 @@ ctx.fillStyle = 'red';
 
 let lastRender = 0;
 let players = [];
+let map = [];
+
+const TILE_SIZE = 32;
+const PLAYER_SIZE = 16;
 
 const controls = {
     up: false,
@@ -64,6 +68,11 @@ socket.on('players', (serverPlayers) => {
     players = serverPlayers;
 });
 
+socket.on('sendMap', serverMap => {
+    map = serverMap;
+    console.log(map);
+});
+
 function update(delta) {
     socket.emit("controls", controls);
 }
@@ -71,20 +80,38 @@ function update(delta) {
 function draw() {
     ctx.clearRect(0, 0, width, height);
 
+    drawMap();
+
     players.forEach(player => {
         // is mine
-        if (player.id === socket.id) {
-            console.log(player);
+        if (player.id === socket.id) {            
             ctx.fillStyle = player.color;
-            ctx.fillRect(player.x, player.y, 50, 50);
+            ctx.fillRect(player.x, player.y, PLAYER_SIZE, PLAYER_SIZE);
         }
 
         ctx.fillStyle = player.color;
-        ctx.fillRect(player.x, player.y, 50, 50);
+        ctx.fillRect(player.x, player.y, PLAYER_SIZE, PLAYER_SIZE);
         ctx.fillStyle = "#000000";
-        ctx.fillText(player.name, player.x + (50 / 2), player.y - 10);
+        ctx.fillText(player.name, player.x + (PLAYER_SIZE / 2), player.y - 10);
     });
 }
+
+const drawMap = () => {
+    ctx.fillStyle = "#000000";
+    for (let row = 0; row < map.length; row++) {
+      for (let col = 0; col < map[row].length; col++) {
+        const tileType = map[row][col];
+        if (tileType === 1) {
+          ctx.fillRect(
+            col * TILE_SIZE,
+            row * TILE_SIZE,
+            TILE_SIZE,
+            TILE_SIZE
+          );
+        }
+      }
+    }
+};
 
 
 function loop(timestamp) {
