@@ -4,7 +4,7 @@ const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const PORT = process.env.PORT || 3000;
-const TICK_RATE = 128;
+const TICK_RATE = 40;
 
 const getGravity = () => {
     const meterInPixels = 3779.5275590551; // 9.2 meters per second
@@ -27,7 +27,7 @@ const CONTROLS = {
     DOWN: "down",
     LEFT: "left",
     RIGHT: "right",
-    JUMP: "jump"
+    JUMP: "jump",
 };
 
 //Whenever someone connects this gets executed
