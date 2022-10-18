@@ -84,7 +84,7 @@ socket.on('pong', (pong) => {
     fpsInMs = latency;
     const fpsStatEl = document.getElementById('fps_stat');
     if (fpsStatEl) {
-        fpsStatEl.value = `${fpsInMs} ms`;
+        fpsStatEl.innerHTML = `FPS: ${fpsInMs} ms`;
     }
 });
 
