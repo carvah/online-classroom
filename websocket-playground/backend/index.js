@@ -104,6 +104,10 @@ io.on('connection', function (socket) {
     socket.on("controls", (controls) => {
         controlsMap[socket.id] = controls;
     });
+
+    socket.on('ping', ping => {
+        socket.emit('pong', Date.now());
+    })
 });
 
 const getBoundingBoxFactory = (STATIC_SIZE) => (entity) => {

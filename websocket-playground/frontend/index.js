@@ -73,8 +73,22 @@ socket.on('sendMap', serverMap => {
     console.log(map);
 });
 
+let lastPing = Date.now();
+setInterval(() => {
+    
+    socket.emit('ping', lastPing);
+    lastPing = Date.now();
+}, 1000);
+
+latency = 0;
+socket.on('pong', (pong) => {
+    
+    latency = Math.floor(lastPing / 1000) - Math.floor(pong / 1000);
+    console.log(latency);
+});
+
 function update(delta) {
-    socket.emit("controls", controls);
+    socket.emit("controls", controls);    
 }
 
 function draw() {
