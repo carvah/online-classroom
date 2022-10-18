@@ -21,7 +21,7 @@ app.use(express.static('frontend'));
 const playersSocketMap = {};
 const socketMap = {};
 const controlsMap = {};
-const players = [];
+let players = [];
 const CONTROLS = {
     UP: "up",
     DOWN: "down",
