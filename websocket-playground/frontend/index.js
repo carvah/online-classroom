@@ -13,8 +13,8 @@ const socket = io();
 const aspectRatio = 16 / 9;
 
 const resizeCanvas = () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight - 200;
+    canvas.width = window.innerWidth - 25;
+    canvas.height = window.innerHeight - 25;
 };
 
 resizeCanvas();
