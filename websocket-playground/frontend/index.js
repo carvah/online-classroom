@@ -3,6 +3,7 @@ const loginControls = document.getElementById('loginControls');
 const gameControl = document.getElementById('gameControl');
 const nameEl = document.getElementById('name');
 const canvas = document.getElementById('canvas');
+const jumpButton = document.getElementById('jumpButton');
 
 const player = {
     name: 'none'
@@ -11,7 +12,7 @@ const player = {
 const socket = io();
 const aspectRatio = 16 / 9;
 const width = window.innerWidth;
-const height = window.innerHeight - 150;
+const height = window.innerHeight - 200;
 
 let fpsInMs = 0;
 let latency = 0;
@@ -44,9 +45,18 @@ const keyMap = {
     " ": "jump",
 };
 
+let joyStick;
 
 loginButton.addEventListener('click', () => {
     login();
+});
+
+jumpButton?.addEventListener('touchstart', () => {
+    controls.jump = true;
+});
+
+jumpButton?.addEventListener('touchend', () => {
+    controls.jump = false;
 });
 
 document.addEventListener("keydown", (e) => {
@@ -63,6 +73,22 @@ function login() {
     gameControl.style.display = 'block';
     player.name = nameEl.value;
 
+    joyStick = new JoyStick('joyDiv', {
+        // The ID of canvas element
+        title: 'joystick',
+        // Internal color of Stick
+        internalFillColor: '#FFFFF0',
+        // Border width of Stick
+        internalLineWidth: 2,
+        // Border color of Stick
+        internalStrokeColor: 'darkgray',
+        // External reference circonference width
+        externalLineWidth: 2,
+        //External reference circonference color
+        externalStrokeColor: '#000000',
+        // Sets the behavior of the stick
+        autoReturnToCenter: true
+    });
     socket.emit('join', player);
 }
 
@@ -77,6 +103,72 @@ socket.on('sendMap', (serverMap) => {
 setInterval(() => {
     socket.emit('ping', Date.now());
 }, 1000);
+
+setInterval(() => {
+    getControlFromJoyStick();
+}, 50);
+
+const getControlFromJoyStick = () => {
+    const direction = joyStick?.GetDir();
+    if (direction) {
+        switch (direction) {
+            case 'N':
+                controls.up = true;
+                controls.down = false;
+                controls.left = false;
+                controls.right = false;
+                break;
+            case 'NE':
+                controls.up = true;
+                controls.down = false;
+                controls.left = false;
+                controls.right = true;
+                break;
+            case 'NW':
+                controls.up = true;
+                controls.down = false;
+                controls.left = true;
+                controls.right = false;
+                break;
+            case 'W':
+                controls.up = false;
+                controls.down = false;
+                controls.left = true;
+                controls.right = false;
+                break;
+            case 'S':
+                controls.up = false;
+                controls.down = true;
+                controls.left = false;
+                controls.right = false;
+                break;
+            case 'SE':
+                controls.up = false;
+                controls.down = true;
+                controls.left = false;
+                controls.right = true;
+                break;
+            case 'SW':
+                controls.up = false;
+                controls.down = true;
+                controls.left = true;
+                controls.right = false;
+                break;
+            case 'E':
+                controls.up = false;
+                controls.down = false;
+                controls.left = false;
+                controls.right = true;
+                break;
+            default:
+                controls.up = false;
+                controls.down = false;
+                controls.left = false;
+                controls.right = false;
+                break;
+        }
+    }
+};
 
 
 socket.on('pong', (pong) => {
@@ -115,6 +207,7 @@ const drawPlayers = () => {
 };
 
 function draw() {
+    console.log(joyStick?.GetDir());
     ctx.clearRect(0, 0, width, height);
     drawPlayers();
     drawMap();

@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <script src="./libs/joy.js"></script>
+    <title>Game with Websockets (test)</title>
 
     <style>
         body {
@@ -18,13 +19,13 @@
         }
 
         #gameControl {
-            display: none;            
+            display: none;
         }
 
         #canvas {
             border: solid 5px blue;
-            margin: 5px; 
-            width: 98%;
+            margin: 5px;
+            width: 95%;
             height: 95%;
             display: block;
         }
@@ -33,11 +34,38 @@
             float: right;
             margin-right: 50px;
         }
+
+        .mobile-controls {
+            display: flex;
+        }
+
+        .jumpButton {
+            border: 1px solid rgb(40, 33, 56);
+            background: darkgray;
+            width: 100%;
+            height: 50px;
+            margin: 5px;
+            font-size: 15pt;
+            border-radius: 20px;
+            color: white;
+
+        }
+
+        .jumpButton:active {
+            background: gray;
+        }
+
+        .joystick {
+            width: 100px;
+            height: 100px;
+            margin-left: auto;
+            margin-right: 20px;
+        }
     </style>
 </head>
 
 <body>
-    <h1>Game by Viewers</h1>
+    <h1>Game with Websockets (test)</h1>
 
     <div id="loginControls">
         <label for="name"></label>
@@ -48,10 +76,17 @@
     <div id="gameControl">
         <span id="fps_stat">0 ms</span>
         <canvas id="canvas"></canvas>
-    </div>        
+
+        <div id="mobile-controls" class="mobile-controls">
+            <button id="jumpButton" class="jumpButton">Jump</button>
+            <div id="joyDiv" class="joystick"></div>
+        </div>
+
+    </div>
 </body>
 
 <script src="/socket.io/socket.io.js"></script>
+
 <script src="./index.js"></script>
 
 </html>
