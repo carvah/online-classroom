@@ -11,14 +11,17 @@ const player = {
 
 const socket = io();
 const aspectRatio = 16 / 9;
-const width = window.innerWidth;
-const height = window.innerHeight - 200;
+
+const resizeCanvas = () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight - 200;
+};
+
+resizeCanvas();
 
 let fpsInMs = 0;
 let latency = 0;
 
-canvas.width = width;
-canvas.height = height;
 const ctx = canvas.getContext('2d');
 ctx.fillStyle = 'red';
 
@@ -47,6 +50,8 @@ const keyMap = {
 
 let joyStick;
 
+let isUsingKeyboard = false;
+
 loginButton.addEventListener('click', () => {
     login();
 });
@@ -61,11 +66,19 @@ jumpButton?.addEventListener('touchend', () => {
 
 document.addEventListener("keydown", (e) => {
     controls[keyMap[e.key]] = true;
+    isUsingKeyboard = true;
 });
 
 document.addEventListener("keyup", (e) => {
     controls[keyMap[e.key]] = false;
+    if (Object.values(controls).some(x => x == true)) {
+        isUsingKeyboard = true;
+    } else {
+        isUsingKeyboard = false;
+    }
 });
+
+window.addEventListener('resize', resizeCanvas, false);
 
 
 function login() {
@@ -81,7 +94,7 @@ function login() {
         // Border width of Stick
         internalLineWidth: 2,
         // Border color of Stick
-        internalStrokeColor: 'darkgray',
+        internalStrokeColor: '#090000',
         // External reference circonference width
         externalLineWidth: 2,
         //External reference circonference color
@@ -109,6 +122,8 @@ setInterval(() => {
 }, 50);
 
 const getControlFromJoyStick = () => {
+    if (isUsingKeyboard) return;
+
     const direction = joyStick?.GetDir();
     if (direction) {
         switch (direction) {
@@ -194,12 +209,12 @@ const drawPlayers = () => {
             cameraY = player.y - canvas.height / 2;
             ctx.fillStyle = '#FFF301';
             ctx.fillRect(player.x - cameraX, player.y - cameraY, PLAYER_SIZE, PLAYER_SIZE);
+        } else {
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x - cameraX, player.y - cameraY, PLAYER_SIZE, PLAYER_SIZE);
         }
 
-        ctx.fillStyle = player.color;
-        ctx.fillRect(player.x - cameraX, player.y - cameraY, PLAYER_SIZE, PLAYER_SIZE);
         ctx.fillStyle = "#000000";
-
         ctx.textBaseline = 'middle';
         ctx.textAlign = 'center';
         ctx.fillText(player.name, player.x - cameraX, (player.y - 10) - cameraY);
@@ -207,8 +222,7 @@ const drawPlayers = () => {
 };
 
 function draw() {
-    console.log(joyStick?.GetDir());
-    ctx.clearRect(0, 0, width, height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawPlayers();
     drawMap();
 }

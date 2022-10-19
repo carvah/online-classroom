@@ -152,11 +152,10 @@ function tick(delta) {
         player.y += player.vy;
 
         if (isCollidingWithMap(player)) {
-            if (player.vy > 0) { // means he's on a surface
-                player.canJump = true;
-            }
             player.y -= player.vy;
             player.vy = 0;
+            // means he's on a surface
+            player.canJump = true
         }
 
         if (playerControls[CONTROLS.RIGHT]) {
@@ -178,11 +177,11 @@ function tick(delta) {
             player.canJump = false;
         }
 
-        if(player.y > 1024) 
-        {
+        // reset player
+        if (player.y > 1024) {
             player.y = 100;
             player.x = 100;
-            player.vy  = 0;
+            player.vy = 0;
         }
     });
 
