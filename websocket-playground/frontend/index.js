@@ -11,26 +11,18 @@ const player = {
 
 const socket = io();
 const aspectRatio = 16 / 9;
+var ratio = 1;
+var width = window.innerWidth * ratio;
+var height = window.innerHeight * ratio;
 
 const resizeCanvas = () => {
-    canvas.width = window.innerWidth - 25;
-    canvas.height = window.innerHeight - 25;
+    console.log(width);
+    console.log(height);
+    canvas.width = width - 25;
+    canvas.height = height - 25;    
 };
 
 resizeCanvas();
-
-function fullscreen() {
-
-
-    if (canvas.webkitRequestFullScreen) {
-        canvas.webkitRequestFullScreen();
-    }
-    else {
-        canvas.mozRequestFullScreen();
-    }
-}
-
-canvas.addEventListener("click", fullscreen)
 
 let fpsInMs = 0;
 let latency = 0;
