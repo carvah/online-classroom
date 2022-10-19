@@ -19,6 +19,19 @@ const resizeCanvas = () => {
 
 resizeCanvas();
 
+function fullscreen() {
+
+
+    if (canvas.webkitRequestFullScreen) {
+        canvas.webkitRequestFullScreen();
+    }
+    else {
+        canvas.mozRequestFullScreen();
+    }
+}
+
+canvas.addEventListener("click", fullscreen)
+
 let fpsInMs = 0;
 let latency = 0;
 
@@ -56,11 +69,11 @@ loginButton.addEventListener('click', () => {
     login();
 });
 
-jumpButton?.addEventListener('touchstart', () => {
+jumpButton.addEventListener('touchstart', () => {
     controls.jump = true;
 });
 
-jumpButton?.addEventListener('touchend', () => {
+jumpButton.addEventListener('touchend', () => {
     controls.jump = false;
 });
 
