@@ -1,10 +1,9 @@
-const { Console } = require('console');
 const express = require('express');
 const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const PORT = process.env.PORT || 3000;
-const TICK_RATE = 40;
+const TICK_RATE = 60;
 
 const getGravity = () => {
     const meterInPixels = 3779.5275590551; // 9.2 meters per second
@@ -13,12 +12,10 @@ const getGravity = () => {
 }
 
 const GRAVITY = getGravity();
-const TILE_SIZE = 32;
-const PLAYER_SIZE = 16;
+const TILE_SIZE = 48;
+const PLAYER_SIZE = 24;
 
-const PLAYER_SPEED = 5.0;
-
-app.use(express.static('frontend'));
+app.use(express.static('client/public'));
 
 const playersSocketMap = {};
 const socketMap = {};
@@ -39,7 +36,7 @@ const map = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -69,44 +66,44 @@ for (let row = 0; row < map.length; row++) {
 }
 
 //Whenever someone connects this gets executed
-io.on('connection', function (socket) {
+io.on('connection', function (client) {
     console.log('A user connected');
 
     //Whenever someone disconnects this piece of code executed
-    socket.on('disconnect', function () {
+    client.on('disconnect', function () {
         console.log('A user disconnected');
-        delete playersSocketMap[socket.id];
-        players = players.filter((player) => player.id !== socket.id);
+        delete playersSocketMap[client.id];
+        players = players.filter((player) => player.id !== client.id);
     });
 
-    socket.on('join', (player) => {
+    client.on('join', (player) => {
         console.log(`${player.name} connected`);
 
         const newPlayer = {
             x: 100,
             y: 100,
-            vx: 0,
+            vx: 5,
             vy: 0,
             name: player.name,
-            id: socket.id,
+            id: client.id,
             color: `#${Math.floor(Math.random() * (0xffffff + 1)).toString(16)}`,
             canJump: true,
         }
 
-        playersSocketMap[socket.id] = newPlayer;
-        socketMap[socket.id] = socket;
+        playersSocketMap[client.id] = newPlayer;
+        socketMap[client.id] = client;
 
         players.push(newPlayer);
 
         io.emit('sendMap', map);
     });
 
-    socket.on("controls", (controls) => {
-        controlsMap[socket.id] = controls;
+    client.on("controls", (controls) => {
+        controlsMap[client.id] = controls;
     });
 
-    socket.on('ping', ping => {
-        socket.emit('pong', ping);
+    client.on('ping', ping => {
+        client.emit('pong', ping);
     })
 });
 
@@ -123,19 +120,10 @@ const getPlayerBoundingBox = getBoundingBoxFactory(PLAYER_SIZE);
 const getTileBoundingBox = getBoundingBoxFactory(TILE_SIZE);
 
 const isOverlap = (rect1, rect2) => {
-    if (
-        rect1.x < rect2.x + rect2.width &&
-        rect1.x + rect1.width > rect2.x &&
-        rect1.y < rect2.y + rect2.height &&
-        rect1.height + rect1.y > rect2.y
-    ) {
-        return true;
-    } else {
-        return false;
-    }
+    return !(rect1.x > rect2.x + rect2.width || rect1.x + rect1.width < rect2.x || rect1.y > rect2.y + rect2.height || rect1.y + rect1.height < rect2.y);
 };
 
-const isCollidingWithMap = (player) => {
+const isCollidingWithTile = (player) => {
     for (const collidable of collidables) {
         if (isOverlap(getPlayerBoundingBox(player), getTileBoundingBox(collidable))) {
             return true;
@@ -144,31 +132,31 @@ const isCollidingWithMap = (player) => {
     return false;
 };
 
-
-function tick(delta) {
+function gameLoop(delta) {
     players.forEach(player => {
         const playerControls = controlsMap[player.id] ?? {};
         player.vy += GRAVITY * delta;
         player.y += player.vy;
 
-        if (isCollidingWithMap(player)) {
+        if (isCollidingWithTile(player)) {
             player.y -= player.vy;
             player.vy = 0;
             // means he's on a surface
-            player.canJump = true
+            player.canJump = true;
         }
 
         if (playerControls[CONTROLS.RIGHT]) {
-            player.x += PLAYER_SPEED;
-            if (isCollidingWithMap(player)) {
-                player.x -= PLAYER_SPEED;
-            }
-        }
+            player.vx = 5;
+            player.x += player.vx;
 
-        if (playerControls[CONTROLS.LEFT]) {
-            player.x -= PLAYER_SPEED;
-            if (isCollidingWithMap(player)) {
-                player.x += PLAYER_SPEED;
+            if (isCollidingWithTile(player)) {
+                player.x -= player.vx;
+            }
+        } else if (playerControls[CONTROLS.LEFT]) {
+            player.vx = -5;
+            player.x += player.vx;
+            if (isCollidingWithTile(player)) {
+                player.x -= player.vx;
             }
         }
 
@@ -192,7 +180,7 @@ let lastUpdated = Date.now();
 setInterval(() => {
     const now = Date.now();
     const delta = now - lastUpdated;
-    tick(delta);
+    gameLoop(delta);
     lastUpdated = now;
 }, 1000 / TICK_RATE);
 

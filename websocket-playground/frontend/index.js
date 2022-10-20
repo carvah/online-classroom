@@ -11,20 +11,16 @@ const player = {
 
 const socket = io();
 const aspectRatio = 16 / 9;
-var ratio = 1;
-var width = window.innerWidth * ratio;
-var height = window.innerHeight * ratio;
+var width = window.innerWidth * aspectRatio;
+var height = window.innerHeight * aspectRatio;
 
-const resizeCanvas = () => {
-    console.log(width);
-    console.log(height);
+const resizeCanvas = () => {    
     canvas.width = width - 25;
     canvas.height = height - 25;    
 };
 
 resizeCanvas();
 
-let fpsInMs = 0;
 let latency = 0;
 
 const ctx = canvas.getContext('2d');
@@ -87,27 +83,7 @@ window.addEventListener('resize', resizeCanvas, false);
 
 
 function login() {
-    loginControls.style.display = 'none';
-    gameControl.style.display = 'block';
-    player.name = nameEl.value;
-
-    joyStick = new JoyStick('joyDiv', {
-        // The ID of canvas element
-        title: 'joystick',
-        // Internal color of Stick
-        internalFillColor: '#FFFFF0',
-        // Border width of Stick
-        internalLineWidth: 2,
-        // Border color of Stick
-        internalStrokeColor: '#090000',
-        // External reference circonference width
-        externalLineWidth: 2,
-        //External reference circonference color
-        externalStrokeColor: '#000000',
-        // Sets the behavior of the stick
-        autoReturnToCenter: true
-    });
-    socket.emit('join', player);
+    
 }
 
 socket.on('players', (serverPlayers) => {
